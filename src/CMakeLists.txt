@@ -1,0 +1,119 @@
+# set the following variables before adding as subdirectory into a project
+# QLITEHTML_BIN_PATH - relative install path for result DLLs
+# QLITEHTML_LIBRARY_PATH - relative install path for result dynamic libraries
+# QLITEHTML_EXPORT - export name for qlitehtml
+# QLITEHTML_DEVEL_COMPONENT - component name for development installation
+# QLITEHTML_DEVEL_EXCLUDE_FROM_ALL - if development component should not be installed by default
+# QLITEHTML_HEADER_PATH - relative install path for development headers
+set(QLITEHTML_VERSION ${PROJECT_VERSION})
+set(QLITEHTML_VERSION_MAJOR ${PROJECT_VERSION_MAJOR})
+set(QLITEHTML_VERSION_COMPAT ${QLITEHTML_VERSION} CACHE STRING "qlitehtml compat version number.")
+
+find_package(litehtml QUIET)
+if(NOT TARGET litehtml AND EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/litehtml/CMakeLists.txt)
+    set(ORIG_FPIC ${CMAKE_POSITION_INDEPENDENT_CODE})
+    if (WIN32)
+      set(LITEHTML_UTF8 ON CACHE BOOL "")
+    endif()
+    set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
+    add_subdirectory(3rdparty/litehtml EXCLUDE_FROM_ALL)
+
+    set(CMAKE_POSITION_INDEPENDENT_CODE "${ORIG_FPIC}")
+    # force optimized litehtml even in debug
+    if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+      # except for windows
+      if (NOT WIN32)
+        target_compile_options(gumbo PRIVATE -O2)
+        target_compile_options(litehtml PRIVATE -O2)
+      endif()
+    endif()
+endif()
+
+# TODO error if litehtml was not found?
+
+find_package(Qt5 COMPONENTS Widgets REQUIRED)
+
+if(TARGET litehtml)
+  set(PUBLIC_HEADERS
+      container_qpainter.h
+      container_qpainter_p.h
+      qlitehtml_global.h
+      qlitehtmlwidget.h)
+  add_library(qlitehtml SHARED ${PUBLIC_HEADERS} container_qpainter.cpp qlitehtmlwidget.cpp)
+
+  target_include_directories(qlitehtml PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
+  target_link_libraries(qlitehtml PUBLIC Qt5::Widgets PRIVATE litehtml)
+  target_compile_definitions(qlitehtml PRIVATE
+    QLITEHTML_LIBRARY
+    QT_NO_JAVA_STYLE_ITERATORS
+    QT_NO_CAST_TO_ASCII QT_RESTRICTED_CAST_FROM_ASCII
+    QT_USE_QSTRINGBUILDER)
+  if (WIN32)
+    target_compile_definitions(qlitehtml PRIVATE UNICODE _UNICODE _CRT_SECURE_NO_WARNINGS)
+    if (NOT BUILD_WITH_PCH)
+      # Windows 8 0x0602
+      target_compile_definitions(qlitehtml PRIVATE WINVER=0x0602 _WIN32_WINNT=0x0602
+        WIN32_LEAN_AND_MEAN)
+    endif()
+  endif()
+
+  set_target_properties(qlitehtml PROPERTIES
+    SOURCES_DIR "${CMAKE_CURRENT_SOURCE_DIR}"
+    VERSION "${QLITEHTML_VERSION}"
+    SOVERSION "${QLITEHTML_VERSION_MAJOR}"
+    MACHO_CURRENT_VERSION "${QLITEHTML_VERSION}"
+    MACHO_COMPATIBILITY_VERSION "${QLITEHTML_VERSION_COMPAT}"
+    CXX_EXTENSIONS OFF
+    CXX_VISIBILITY_PRESET hidden
+    VISIBILITY_INLINES_HIDDEN ON
+    POSITION_INDEPENDENT_CODE ON)
+
+  if(WIN32)
+    set_target_properties(qlitehtml PROPERTIES
+      SUFFIX "${QLITEHTML_VERSION_MAJOR}${CMAKE_SHARED_LIBRARY_SUFFIX}"
+      PREFIX "")
+  endif()
+
+  if(DEFINED QLITEHTML_BIN_PATH AND DEFINED QLITEHTML_LIBRARY_PATH)
+    install(TARGETS qlitehtml
+      RUNTIME
+        DESTINATION "${QLITEHTML_BIN_PATH}"
+        OPTIONAL
+      LIBRARY
+        DESTINATION "${QLITEHTML_LIBRARY_PATH}"
+        NAMELINK_SKIP
+        OPTIONAL)
+  endif()
+
+  if(DEFINED QLITEHTML_EXPORT)
+    install(TARGETS qlitehtml EXPORT ${QLITEHTML_EXPORT})
+    add_library(${QLITEHTML_EXPORT}::qlitehtml ALIAS qlitehtml)
+  endif()
+
+  if(DEFINED QLITEHTML_DEVEL_COMPONENT)
+    set(_EXCLUDE)
+    if(QLITEHTML_DEVEL_EXCLUDE_FROM_ALL)
+      set(_EXCLUDE EXCLUDE_FROM_ALL)
+    endif()
+    if(DEFINED QLITEHTML_LIBRARY_PATH)
+      install(TARGETS qlitehtml
+        OBJECTS
+          DESTINATION "${QLITEHTML_LIBRARY_PATH}"
+          COMPONENT ${QLITEHTML_DEVEL_COMPONENT} ${_EXCLUDE}
+          OPTIONAL
+        ARCHIVE
+          DESTINATION "${QLITEHTML_LIBRARY_PATH}"
+          COMPONENT ${QLITEHTML_DEVEL_COMPONENT} ${_EXCLUDE}
+          OPTIONAL)
+    endif()
+    if(DEFINED QLITEHTML_HEADER_PATH)
+      install(
+        FILES ${PUBLIC_HEADERS}
+        DESTINATION ${QLITEHTML_HEADER_PATH}
+        COMPONENT ${QLITEHTML_DEVEL_COMPONENT} ${_EXCLUDE})
+      target_include_directories(qlitehtml PUBLIC $<INSTALL_INTERFACE:${QLITEHTML_HEADER_PATH}>)
+    endif()
+  endif()
+
+endif()
