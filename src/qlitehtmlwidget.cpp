@@ -32,7 +32,6 @@
 #include <QPainter>
 #include <QScrollBar>
 #include <QStyle>
-#include <QTimer>
 
 const int kScrollBarStep = 40;
 
@@ -392,7 +391,8 @@ QLiteHtmlWidget::QLiteHtmlWidget(QWidget *parent)
             fullUrl.setFragment(url.fragment(QUrl::FullyEncoded));
         }
         // delay because document may not be changed directly during this callback
-        QTimer::singleShot(0, this, [this, fullUrl] { emit linkClicked(fullUrl); });
+        QMetaObject::invokeMethod(this, [this, fullUrl] { emit linkClicked(fullUrl); },
+                 Qt::QueuedConnection);
     });
 
     // TODO adapt mastercss to palette (default text & background color)
