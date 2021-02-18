@@ -76,44 +76,52 @@ if(TARGET litehtml)
   endif()
 
   if(DEFINED QLITEHTML_BIN_PATH AND DEFINED QLITEHTML_LIBRARY_PATH)
+    set(_EXPORT)
+    if(DEFINED QLITEHTML_EXPORT)
+      set(_EXPORT EXPORT ${QLITEHTML_EXPORT})
+      add_library(${QLITEHTML_EXPORT}::qlitehtml ALIAS qlitehtml)
+    endif()
+
+    set(_DEVEL_COMPONENT)
+    set(_NAMELINK)
+    if(DEFINED QLITEHTML_DEVEL_COMPONENT)
+      set(_EXCLUDE)
+      if(QLITEHTML_DEVEL_EXCLUDE_FROM_ALL)
+        set(_EXCLUDE EXCLUDE_FROM_ALL)
+      endif()
+      set(_DEVEL_COMPONENT COMPONENT ${QLITEHTML_DEVEL_COMPONENT} ${_EXCLUDE})
+      set(_NAMELINK NAMELINK_SKIP)
+      install(TARGETS qlitehtml
+        LIBRARY
+        DESTINATION "${QLITEHTML_LIBRARY_PATH}"
+        NAMELINK_ONLY
+        ${_DEVEL_COMPONENT})
+      if(DEFINED QLITEHTML_HEADER_PATH)
+        install(
+          FILES ${PUBLIC_HEADERS}
+          DESTINATION ${QLITEHTML_HEADER_PATH}
+          ${_DEVEL_COMPONENT})
+        target_include_directories(qlitehtml PUBLIC $<INSTALL_INTERFACE:${QLITEHTML_HEADER_PATH}>)
+      endif()
+    endif()
+
     install(TARGETS qlitehtml
+      ${_EXPORT}
       RUNTIME
         DESTINATION "${QLITEHTML_BIN_PATH}"
         OPTIONAL
       LIBRARY
         DESTINATION "${QLITEHTML_LIBRARY_PATH}"
-        NAMELINK_SKIP
+        ${_NAMELINK}
+        OPTIONAL
+      OBJECTS
+        DESTINATION "${QLITEHTML_LIBRARY_PATH}"
+        ${_DEVEL_COMPONENT}
+        OPTIONAL
+      ARCHIVE
+        DESTINATION "${QLITEHTML_LIBRARY_PATH}"
+        ${_DEVEL_COMPONENT}
         OPTIONAL)
-  endif()
-
-  if(DEFINED QLITEHTML_EXPORT)
-    install(TARGETS qlitehtml EXPORT ${QLITEHTML_EXPORT})
-    add_library(${QLITEHTML_EXPORT}::qlitehtml ALIAS qlitehtml)
-  endif()
-
-  if(DEFINED QLITEHTML_DEVEL_COMPONENT)
-    set(_EXCLUDE)
-    if(QLITEHTML_DEVEL_EXCLUDE_FROM_ALL)
-      set(_EXCLUDE EXCLUDE_FROM_ALL)
-    endif()
-    if(DEFINED QLITEHTML_LIBRARY_PATH)
-      install(TARGETS qlitehtml
-        OBJECTS
-          DESTINATION "${QLITEHTML_LIBRARY_PATH}"
-          COMPONENT ${QLITEHTML_DEVEL_COMPONENT} ${_EXCLUDE}
-          OPTIONAL
-        ARCHIVE
-          DESTINATION "${QLITEHTML_LIBRARY_PATH}"
-          COMPONENT ${QLITEHTML_DEVEL_COMPONENT} ${_EXCLUDE}
-          OPTIONAL)
-    endif()
-    if(DEFINED QLITEHTML_HEADER_PATH)
-      install(
-        FILES ${PUBLIC_HEADERS}
-        DESTINATION ${QLITEHTML_HEADER_PATH}
-        COMPONENT ${QLITEHTML_DEVEL_COMPONENT} ${_EXCLUDE})
-      target_include_directories(qlitehtml PUBLIC $<INSTALL_INTERFACE:${QLITEHTML_HEADER_PATH}>)
-    endif()
   endif()
 
 endif()
