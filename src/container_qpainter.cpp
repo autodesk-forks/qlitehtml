@@ -1310,7 +1310,6 @@ int DocumentContainer::withFixedElementPosition(int y, const std::function<void(
 
 QPixmap DocumentContainerPrivate::getPixmap(const QString &imageUrl, const QString &baseUrl)
 {
-    const QString actualBaseurl = baseUrl.isEmpty() ? m_baseUrl : baseUrl;
     const QUrl url = resolveUrl(imageUrl, baseUrl);
     if (!m_pixmaps.contains(url)) {
         qWarning(log) << "draw_background: pixmap not loaded for" << url;
