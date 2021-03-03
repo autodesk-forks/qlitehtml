@@ -543,7 +543,8 @@ void QLiteHtmlWidget::mouseMoveEvent(QMouseEvent *event)
     QPoint viewportPos;
     QPoint pos;
     htmlPos(event->pos(), &viewportPos, &pos);
-    for (const QRect &r : d->documentContainer.mouseMoveEvent(pos, viewportPos))
+    const QVector<QRect> areas = d->documentContainer.mouseMoveEvent(pos, viewportPos);
+    for (const QRect &r : areas)
         viewport()->update(fromVirtual(r.translated(-scrollPosition())));
 }
 
@@ -552,7 +553,8 @@ void QLiteHtmlWidget::mousePressEvent(QMouseEvent *event)
     QPoint viewportPos;
     QPoint pos;
     htmlPos(event->pos(), &viewportPos, &pos);
-    for (const QRect &r : d->documentContainer.mousePressEvent(pos, viewportPos, event->button()))
+    const QVector<QRect> areas = d->documentContainer.mousePressEvent(pos, viewportPos, event->button());
+    for (const QRect &r : areas)
         viewport()->update(fromVirtual(r.translated(-scrollPosition())));
 }
 
@@ -561,7 +563,8 @@ void QLiteHtmlWidget::mouseReleaseEvent(QMouseEvent *event)
     QPoint viewportPos;
     QPoint pos;
     htmlPos(event->pos(), &viewportPos, &pos);
-    for (const QRect &r : d->documentContainer.mouseReleaseEvent(pos, viewportPos, event->button()))
+    const QVector<QRect> areas = d->documentContainer.mouseReleaseEvent(pos, viewportPos, event->button());
+    for (const QRect &r : areas)
         viewport()->update(fromVirtual(r.translated(-scrollPosition())));
 }
 
@@ -570,8 +573,8 @@ void QLiteHtmlWidget::mouseDoubleClickEvent(QMouseEvent *event)
     QPoint viewportPos;
     QPoint pos;
     htmlPos(event->pos(), &viewportPos, &pos);
-    for (const QRect &r :
-         d->documentContainer.mouseDoubleClickEvent(pos, viewportPos, event->button())) {
+    const QVector<QRect> areas = d->documentContainer.mouseDoubleClickEvent(pos, viewportPos, event->button());
+    for (const QRect &r : areas) {
         viewport()->update(fromVirtual(r.translated(-scrollPosition())));
     }
 }
@@ -579,7 +582,8 @@ void QLiteHtmlWidget::mouseDoubleClickEvent(QMouseEvent *event)
 void QLiteHtmlWidget::leaveEvent(QEvent *event)
 {
     Q_UNUSED(event)
-    for (const QRect &r : d->documentContainer.leaveEvent())
+    const QVector<QRect> areas = d->documentContainer.leaveEvent();
+    for (const QRect &r : areas)
         viewport()->update(fromVirtual(r.translated(-scrollPosition())));
 }
 
