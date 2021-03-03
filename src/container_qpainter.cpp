@@ -54,6 +54,14 @@ namespace {
 static Q_LOGGING_CATEGORY(log, "qlitehtml", QtCriticalMsg)
 }
 
+#if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
+namespace Qt {
+namespace {
+auto constexpr SkipEmptyParts = QString::SkipEmptyParts;
+}
+}
+#endif
+
 static QFont toQFont(litehtml::uint_ptr hFont)
 {
     return *reinterpret_cast<Font *>(hFont);
