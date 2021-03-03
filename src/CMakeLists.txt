@@ -32,7 +32,7 @@ endif()
 
 # TODO error if litehtml was not found?
 
-find_package(Qt5 COMPONENTS Widgets REQUIRED)
+find_package(Qt5 5.11 COMPONENTS Widgets REQUIRED)
 
 if(TARGET litehtml)
   set(PUBLIC_HEADERS
