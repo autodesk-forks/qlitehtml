@@ -407,12 +407,13 @@ QLiteHtmlWidget::~QLiteHtmlWidget()
 void QLiteHtmlWidget::setUrl(const QUrl &url)
 {
     d->url = url;
-    QUrl urlWithoutAnchor = url;
-    urlWithoutAnchor.setFragment({});
-    const QString urlString = urlWithoutAnchor.toString(QUrl::None);
-    const int lastSlash = urlString.lastIndexOf('/');
-    const QString baseUrl = lastSlash >= 0 ? urlString.left(lastSlash) : urlString;
-    d->documentContainer.setBaseUrl(baseUrl);
+    QUrl baseUrl = url;
+    baseUrl.setFragment({});
+    const QString path = baseUrl.path(QUrl::FullyEncoded);
+    const int lastSlash = path.lastIndexOf('/');
+    const QString basePath = lastSlash >= 0 ? path.left(lastSlash) : QString();
+    baseUrl.setPath(basePath);
+    d->documentContainer.setBaseUrl(baseUrl.toString(QUrl::FullyEncoded));
 }
 
 QUrl QLiteHtmlWidget::url() const
