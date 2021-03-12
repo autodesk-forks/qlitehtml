@@ -23,4 +23,8 @@ else()
     set(QLITEHTML_HEADER_PATH include/qlitehtml)
 endif()
 
+find_package(QT NAMES Qt6 Qt5 COMPONENTS Widgets REQUIRED)
+set(Qt Qt${QT_VERSION_MAJOR})
+
 add_subdirectory(src)
+add_subdirectory(tests/manual/browser)
