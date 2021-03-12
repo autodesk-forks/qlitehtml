@@ -1338,10 +1338,22 @@ QString DocumentContainerPrivate::monospaceFont() const
 
 QUrl DocumentContainerPrivate::resolveUrl(const QString &url, const QString &baseUrl) const
 {
+    // several cases:
+    // full url: "https://foo.bar/blah.css"
+    // relative path: "foo/bar.css"
+    // server relative path: "/foo/bar.css"
+    // net path: "//foo.bar/blah.css"
     const QUrl qurl(url);
-    if (qurl.isRelative() && !qurl.path(QUrl::FullyEncoded).isEmpty()) {
-        const QString actualBaseurl = baseUrl.isEmpty() ? m_baseUrl : baseUrl;
-        QUrl resolvedUrl(actualBaseurl + '/' + url);
+    if (qurl.scheme().isEmpty()) {
+        const QUrl pageBaseUrl = QUrl(baseUrl.isEmpty() ? m_baseUrl : baseUrl);
+        if (url.startsWith("//")) // net path
+            return QUrl(pageBaseUrl.scheme() + ":" + url);
+        QUrl serverUrl = QUrl(pageBaseUrl);
+        serverUrl.setPath("");
+        const QString actualBaseUrl = url.startsWith('/')
+                                          ? serverUrl.toString(QUrl::FullyEncoded)
+                                          : pageBaseUrl.toString(QUrl::FullyEncoded);
+        QUrl resolvedUrl(actualBaseUrl + '/' + url);
         resolvedUrl.setPath(QDir::cleanPath(resolvedUrl.path(QUrl::FullyEncoded)));
         return resolvedUrl;
     }
