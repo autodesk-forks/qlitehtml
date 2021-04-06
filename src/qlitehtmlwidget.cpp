@@ -596,6 +596,21 @@ void QLiteHtmlWidget::contextMenuEvent(QContextMenuEvent *event)
     emit contextMenuRequested(event->pos(), d->documentContainer.linkAt(pos, viewportPos));
 }
 
+void QLiteHtmlWidget::keyPressEvent(QKeyEvent *event)
+{
+    if (event->modifiers() == Qt::NoModifier) {
+        if (event->key() == Qt::Key_Home) {
+            verticalScrollBar()->triggerAction(QAbstractSlider::SliderToMinimum);
+            event->accept();
+        } else if (event->key() == Qt::Key_End) {
+            verticalScrollBar()->triggerAction(QAbstractSlider::SliderToMaximum);
+            event->accept();
+        }
+    }
+
+    QAbstractScrollArea::keyPressEvent(event);
+}
+
 void QLiteHtmlWidget::withFixedTextPosition(const std::function<void()> &action)
 {
     // remember element to which to scroll after re-rendering
