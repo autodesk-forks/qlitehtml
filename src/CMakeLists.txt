@@ -9,8 +9,6 @@ set(QLITEHTML_VERSION ${PROJECT_VERSION})
 set(QLITEHTML_VERSION_MAJOR ${PROJECT_VERSION_MAJOR})
 set(QLITEHTML_VERSION_COMPAT ${QLITEHTML_VERSION} CACHE STRING "qlitehtml compat version number.")
 
-find_package(Qt5 5.11 COMPONENTS Widgets REQUIRED)
-
 find_package(litehtml QUIET)
 if(NOT TARGET litehtml AND EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/litehtml/CMakeLists.txt)
     set(ORIG_FPIC ${CMAKE_POSITION_INDEPENDENT_CODE})
@@ -43,7 +41,7 @@ if(TARGET litehtml)
   add_library(qlitehtml SHARED ${PUBLIC_HEADERS} container_qpainter.cpp qlitehtmlwidget.cpp)
 
   target_include_directories(qlitehtml PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
-  target_link_libraries(qlitehtml PUBLIC Qt5::Widgets PRIVATE litehtml)
+  target_link_libraries(qlitehtml PUBLIC Qt${QT_VERSION_MAJOR}::Widgets PRIVATE litehtml)
   target_compile_definitions(qlitehtml PRIVATE
     QLITEHTML_LIBRARY
     QT_NO_JAVA_STYLE_ITERATORS
