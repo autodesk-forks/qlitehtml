@@ -137,6 +137,8 @@ public: // document_container API
     QUrl resolveUrl(const QString &url, const QString &baseUrl) const;
     void drawSelection(QPainter *painter, const QRect &clip) const;
     void buildIndex();
+    void updateSelection();
+    void clearSelection();
 
     QPaintDevice *m_paintDevice = nullptr;
     litehtml::document::ptr m_document;
@@ -153,6 +155,7 @@ public: // document_container API
     DocumentContainer::CursorCallback m_cursorCallback;
     DocumentContainer::LinkCallback m_linkCallback;
     DocumentContainer::PaletteCallback m_paletteCallback;
+    DocumentContainer::ClipboardCallback m_clipboardCallback;
     bool m_blockLinks = false;
 };
 

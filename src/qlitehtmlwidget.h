@@ -69,6 +69,8 @@ public:
 
 signals:
     void linkClicked(const QUrl &url);
+    void linkHighlighted(const QUrl &url);
+    void copyAvailable(bool available);
     void contextMenuRequested(const QPoint &pos, const QUrl &url);
 
 protected:
@@ -83,6 +85,7 @@ protected:
     void keyPressEvent(QKeyEvent *event) override;
 
 private:
+    void updateHightlightedLink();
     void withFixedTextPosition(const std::function<void()> &action);
     void render();
     QPoint scrollPosition() const;

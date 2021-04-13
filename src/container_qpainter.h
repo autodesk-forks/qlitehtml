@@ -117,6 +117,9 @@ public: // outside API
     using PaletteCallback = std::function<QPalette()>;
     void setPaletteCallback(const PaletteCallback &callback);
 
+    using ClipboardCallback = std::function<void(bool)>;
+    void setClipboardCallback(const ClipboardCallback &callback);
+
     int withFixedElementPosition(int y, const std::function<void()> &action);
 
 private:

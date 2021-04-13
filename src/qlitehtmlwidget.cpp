@@ -372,6 +372,7 @@ public:
     QUrl url;
     DocumentContainer documentContainer;
     qreal zoomFactor = 1;
+    QUrl lastHighlightedLink;
 };
 
 QLiteHtmlWidget::QLiteHtmlWidget(QWidget *parent)
@@ -394,6 +395,7 @@ QLiteHtmlWidget::QLiteHtmlWidget(QWidget *parent)
         QMetaObject::invokeMethod(this, [this, fullUrl] { emit linkClicked(fullUrl); },
                  Qt::QueuedConnection);
     });
+    d->documentContainer.setClipboardCallback([this](bool yes) { emit copyAvailable(yes); });
 
     // TODO adapt mastercss to palette (default text & background color)
     d->context.setMasterStyleSheet(mastercss);
@@ -414,6 +416,8 @@ void QLiteHtmlWidget::setUrl(const QUrl &url)
     const QString basePath = lastSlash >= 0 ? path.left(lastSlash) : QString();
     baseUrl.setPath(basePath);
     d->documentContainer.setBaseUrl(baseUrl.toString(QUrl::FullyEncoded));
+    QMetaObject::invokeMethod(this, [this] { updateHightlightedLink(); },
+             Qt::QueuedConnection);
 }
 
 QUrl QLiteHtmlWidget::url() const
@@ -429,6 +433,8 @@ void QLiteHtmlWidget::setHtml(const QString &content)
     verticalScrollBar()->setValue(0);
     horizontalScrollBar()->setValue(0);
     render();
+    QMetaObject::invokeMethod(this, [this] { updateHightlightedLink(); },
+             Qt::QueuedConnection);
 }
 
 QString QLiteHtmlWidget::html() const
@@ -547,6 +553,8 @@ void QLiteHtmlWidget::mouseMoveEvent(QMouseEvent *event)
     const QVector<QRect> areas = d->documentContainer.mouseMoveEvent(pos, viewportPos);
     for (const QRect &r : areas)
         viewport()->update(fromVirtual(r.translated(-scrollPosition())));
+
+    updateHightlightedLink();
 }
 
 void QLiteHtmlWidget::mousePressEvent(QMouseEvent *event)
@@ -609,6 +617,18 @@ void QLiteHtmlWidget::keyPressEvent(QKeyEvent *event)
     }
 
     QAbstractScrollArea::keyPressEvent(event);
+}
+
+void QLiteHtmlWidget::updateHightlightedLink()
+{
+    QPoint viewportPos;
+    QPoint pos;
+    htmlPos(mapFromGlobal(QCursor::pos()), &viewportPos, &pos);
+    const QUrl highlightedUrl = d->documentContainer.linkAt(pos, viewportPos);
+    if (d->lastHighlightedLink == highlightedUrl)
+        return;
+    d->lastHighlightedLink = highlightedUrl;
+    emit linkHighlighted(d->lastHighlightedLink);
 }
 
 void QLiteHtmlWidget::withFixedTextPosition(const std::function<void()> &action)
