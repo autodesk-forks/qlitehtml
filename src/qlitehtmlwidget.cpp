@@ -594,6 +594,7 @@ void QLiteHtmlWidget::leaveEvent(QEvent *event)
     const QVector<QRect> areas = d->documentContainer.leaveEvent();
     for (const QRect &r : areas)
         viewport()->update(fromVirtual(r.translated(-scrollPosition())));
+    setHightlightedLink(QUrl());
 }
 
 void QLiteHtmlWidget::contextMenuEvent(QContextMenuEvent *event)
@@ -624,10 +625,14 @@ void QLiteHtmlWidget::updateHightlightedLink()
     QPoint viewportPos;
     QPoint pos;
     htmlPos(mapFromGlobal(QCursor::pos()), &viewportPos, &pos);
-    const QUrl highlightedUrl = d->documentContainer.linkAt(pos, viewportPos);
-    if (d->lastHighlightedLink == highlightedUrl)
+    setHightlightedLink(d->documentContainer.linkAt(pos, viewportPos));
+}
+
+void QLiteHtmlWidget::setHightlightedLink(const QUrl &url)
+{
+    if (d->lastHighlightedLink == url)
         return;
-    d->lastHighlightedLink = highlightedUrl;
+    d->lastHighlightedLink = url;
     emit linkHighlighted(d->lastHighlightedLink);
 }
 

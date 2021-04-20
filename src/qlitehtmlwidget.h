@@ -86,6 +86,7 @@ protected:
 
 private:
     void updateHightlightedLink();
+    void setHightlightedLink(const QUrl &url);
     void withFixedTextPosition(const std::function<void()> &action);
     void render();
     QPoint scrollPosition() const;
