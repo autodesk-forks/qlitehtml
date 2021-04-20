@@ -27,15 +27,18 @@
 
 #include <QAction>
 #include <QApplication>
+#include <QClipboard>
 #include <QFileDialog>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QLineEdit>
 #include <QLoggingCategory>
+#include <QMenuBar>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QPushButton>
 #include <QStatusBar>
+#include <QToolBar>
 #include <QVBoxLayout>
 #include <QWidget>
 
@@ -65,6 +68,18 @@ BrowserWindow::BrowserWindow()
     auto vlayout = new QVBoxLayout;
     vlayout->setContentsMargins(0, 0, 0, 0);
     setLayout(vlayout);
+
+    auto menuBar = new QMenuBar;
+    vlayout->addWidget(menuBar);
+    auto editMenu = menuBar->addMenu(tr("Edit"));
+    auto copyAction = editMenu->addAction(tr("Copy"));
+    copyAction->setShortcut(QKeySequence::Copy);
+    copyAction->setEnabled(false);
+
+    auto toolBar = new QToolBar;
+    vlayout->addWidget(toolBar);
+    toolBar->addAction(copyAction);
+
     auto centerWidget = new QWidget;
     auto centerLayout = new QVBoxLayout;
     centerWidget->setLayout(centerLayout);
@@ -104,6 +119,13 @@ BrowserWindow::BrowserWindow()
     });
     connect(htmlWidget, &QLiteHtmlWidget::linkHighlighted, statusBar, [statusBar](const QUrl &url) {
         statusBar->showMessage(url.toString());
+    });
+    connect(htmlWidget, &QLiteHtmlWidget::copyAvailable, copyAction, [copyAction](bool available) {
+        copyAction->setEnabled(available);
+    });
+
+    connect(copyAction, &QAction::triggered, htmlWidget, [htmlWidget] {
+        QGuiApplication::clipboard()->setText(htmlWidget->selectedText());
     });
 
     const auto loadUrl = [this, htmlWidget, urlInput, browseButton] {
