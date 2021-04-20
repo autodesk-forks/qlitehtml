@@ -33,6 +33,7 @@
 #include <QLoggingCategory>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
+#include <QStatusBar>
 #include <QVBoxLayout>
 #include <QWidget>
 
@@ -59,16 +60,24 @@ int main(int argc, char *argv[])
 
 BrowserWindow::BrowserWindow()
 {
-    QVBoxLayout *vlayout = new QVBoxLayout;
+    auto vlayout = new QVBoxLayout;
+    vlayout->setContentsMargins(0, 0, 0, 0);
     setLayout(vlayout);
-    QHBoxLayout *urlLayout = new QHBoxLayout;
+    auto centerWidget = new QWidget;
+    auto centerLayout = new QVBoxLayout;
+    centerWidget->setLayout(centerLayout);
+    vlayout->addWidget(centerWidget, 10);
+    auto urlLayout = new QHBoxLayout;
     urlLayout->addWidget(new QLabel(tr("URL:")));
-    QLineEdit *urlInput = new QLineEdit;
+    auto urlInput = new QLineEdit;
     urlLayout->addWidget(urlInput);
 
-    vlayout->addLayout(urlLayout);
-    QLiteHtmlWidget *htmlWidget = new QLiteHtmlWidget;
-    vlayout->addWidget(htmlWidget);
+    centerLayout->addLayout(urlLayout);
+    auto htmlWidget = new QLiteHtmlWidget;
+    centerLayout->addWidget(htmlWidget);
+
+    auto statusBar = new QStatusBar;
+    vlayout->addWidget(statusBar);
 
     resize(1000, 650);
 
@@ -88,6 +97,9 @@ BrowserWindow::BrowserWindow()
         });
         loop.exec(QEventLoop::ExcludeUserInputEvents);
         return data;
+    });
+    connect(htmlWidget, &QLiteHtmlWidget::linkHighlighted, statusBar, [statusBar](const QUrl &url) {
+        statusBar->showMessage(url.toString());
     });
     connect(urlInput, &QLineEdit::returnPressed, htmlWidget, [this, htmlWidget, urlInput] {
         urlInput->setEnabled(false);
