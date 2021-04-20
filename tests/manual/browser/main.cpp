@@ -27,12 +27,14 @@
 
 #include <QAction>
 #include <QApplication>
+#include <QFileDialog>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QLineEdit>
 #include <QLoggingCategory>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
+#include <QPushButton>
 #include <QStatusBar>
 #include <QVBoxLayout>
 #include <QWidget>
@@ -71,6 +73,8 @@ BrowserWindow::BrowserWindow()
     urlLayout->addWidget(new QLabel(tr("URL:")));
     auto urlInput = new QLineEdit;
     urlLayout->addWidget(urlInput);
+    auto browseButton = new QPushButton(tr("Browse..."));
+    urlLayout->addWidget(browseButton);
 
     centerLayout->addLayout(urlLayout);
     auto htmlWidget = new QLiteHtmlWidget;
@@ -101,12 +105,14 @@ BrowserWindow::BrowserWindow()
     connect(htmlWidget, &QLiteHtmlWidget::linkHighlighted, statusBar, [statusBar](const QUrl &url) {
         statusBar->showMessage(url.toString());
     });
-    connect(urlInput, &QLineEdit::returnPressed, htmlWidget, [this, htmlWidget, urlInput] {
+
+    const auto loadUrl = [this, htmlWidget, urlInput, browseButton] {
         urlInput->setEnabled(false);
+        browseButton->setEnabled(false);
         const QUrl url = QUrl(urlInput->text().trimmed());
         qCDebug(log) << "Url requested:" << url;
         QNetworkReply *reply = m_nam.get(QNetworkRequest(url));
-        connect(reply, &QNetworkReply::finished, this, [htmlWidget, urlInput, reply] {
+        connect(reply, &QNetworkReply::finished, this, [htmlWidget, urlInput, browseButton, reply] {
             qCDebug(log) << "Url finished:" << reply->url() << reply->error();
             if (reply->error() == QNetworkReply::NoError) {
                 const QByteArray data = reply->readAll();
@@ -114,8 +120,17 @@ BrowserWindow::BrowserWindow()
                 htmlWidget->setHtml(QString::fromUtf8(data));
             }
             urlInput->setEnabled(true);
+            browseButton->setEnabled(true);
             reply->deleteLater();
         });
+    };
+    connect(urlInput, &QLineEdit::returnPressed, this, loadUrl);
+    connect(browseButton, &QPushButton::clicked, this, [this, urlInput, loadUrl] {
+        const QUrl url = QFileDialog::getOpenFileUrl(this, tr("Open File"));
+        if (url.isValid()) {
+            urlInput->setText(url.toString());
+            loadUrl();
+        }
     });
 
     QAction *action;
