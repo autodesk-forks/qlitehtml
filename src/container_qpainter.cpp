@@ -29,7 +29,9 @@
 #include "container_qpainter.h"
 #include "container_qpainter_p.h"
 
+#if QT_CONFIG(clipboard)
 #include <QClipboard>
+#endif
 #include <QCursor>
 #include <QDebug>
 #include <QDir>
@@ -440,9 +442,11 @@ void Selection::update()
         selection = {};
         text.clear();
     }
+#if QT_CONFIG(clipboard)
     QClipboard *cb = QGuiApplication::clipboard();
     if (cb->supportsSelection())
         cb->setText(text, QClipboard::Selection);
+#endif
 }
 
 QRect Selection::boundingRect() const

@@ -30,7 +30,9 @@
 
 #include <QAction>
 #include <QApplication>
+#if QT_CONFIG(clipboard)
 #include <QClipboard>
+#endif
 #include <QFileDialog>
 #include <QHBoxLayout>
 #include <QLabel>
@@ -72,6 +74,7 @@ BrowserWindow::BrowserWindow()
     vlayout->setContentsMargins(0, 0, 0, 0);
     setLayout(vlayout);
 
+#if QT_CONFIG(clipboard)
     auto menuBar = new QMenuBar;
     vlayout->addWidget(menuBar);
     auto editMenu = menuBar->addMenu(tr("Edit"));
@@ -82,6 +85,7 @@ BrowserWindow::BrowserWindow()
     auto toolBar = new QToolBar;
     vlayout->addWidget(toolBar);
     toolBar->addAction(copyAction);
+#endif
 
     auto centerWidget = new QWidget;
     auto centerLayout = new QVBoxLayout;
@@ -123,13 +127,12 @@ BrowserWindow::BrowserWindow()
     connect(htmlWidget, &QLiteHtmlWidget::linkHighlighted, statusBar, [statusBar](const QUrl &url) {
         statusBar->showMessage(url.toString());
     });
-    connect(htmlWidget, &QLiteHtmlWidget::copyAvailable, copyAction, [copyAction](bool available) {
-        copyAction->setEnabled(available);
-    });
-
+#if QT_CONFIG(clipboard)
+    connect(htmlWidget, &QLiteHtmlWidget::copyAvailable, copyAction, &QAction::setEnabled);
     connect(copyAction, &QAction::triggered, htmlWidget, [htmlWidget] {
         QGuiApplication::clipboard()->setText(htmlWidget->selectedText());
     });
+#endif
 
     const auto loadUrl = [this, htmlWidget, urlInput, browseButton] {
         urlInput->setEnabled(false);
