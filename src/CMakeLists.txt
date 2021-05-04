@@ -5,6 +5,7 @@
 # QLITEHTML_DEVEL_COMPONENT - component name for development installation
 # QLITEHTML_DEVEL_EXCLUDE_FROM_ALL - if development component should not be installed by default
 # QLITEHTML_HEADER_PATH - relative install path for development headers
+# QLITEHTML_LIBRARY_TYPE - SHARED or STATIC, defaults to SHARED
 set(QLITEHTML_VERSION ${PROJECT_VERSION})
 set(QLITEHTML_VERSION_MAJOR ${PROJECT_VERSION_MAJOR})
 set(QLITEHTML_VERSION_COMPAT ${QLITEHTML_VERSION} CACHE STRING "qlitehtml compat version number.")
@@ -38,7 +39,10 @@ if(TARGET litehtml)
       container_qpainter_p.h
       qlitehtml_global.h
       qlitehtmlwidget.h)
-  add_library(qlitehtml SHARED ${PUBLIC_HEADERS} container_qpainter.cpp qlitehtmlwidget.cpp)
+  if(NOT QLITEHTML_LIBRARY_TYPE)
+    set(QLITEHTML_LIBRARY_TYPE SHARED)
+  endif()
+  add_library(qlitehtml ${QLITEHTML_LIBRARY_TYPE} ${PUBLIC_HEADERS} container_qpainter.cpp qlitehtmlwidget.cpp)
 
   target_include_directories(qlitehtml PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
   target_link_libraries(qlitehtml PUBLIC Qt${QT_VERSION_MAJOR}::Widgets PRIVATE litehtml)
