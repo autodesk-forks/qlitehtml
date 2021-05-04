@@ -47,10 +47,14 @@ if(TARGET litehtml)
   target_include_directories(qlitehtml PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
   target_link_libraries(qlitehtml PUBLIC Qt${QT_VERSION_MAJOR}::Widgets PRIVATE litehtml)
   target_compile_definitions(qlitehtml PRIVATE
-    QLITEHTML_LIBRARY
     QT_NO_JAVA_STYLE_ITERATORS
     QT_NO_CAST_TO_ASCII QT_RESTRICTED_CAST_FROM_ASCII
     QT_USE_QSTRINGBUILDER)
+  if("${QLITEHTML_LIBRARY_TYPE}" STREQUAL "SHARED")
+    target_compile_definitions(qlitehtml PRIVATE QLITEHTML_LIBRARY)
+  else()
+    target_compile_definitions(qlitehtml PUBLIC QLITEHTML_STATIC_LIBRARY)
+  endif()
   if (WIN32)
     target_compile_definitions(qlitehtml PRIVATE UNICODE _UNICODE _CRT_SECURE_NO_WARNINGS)
     if (NOT BUILD_WITH_PCH)
