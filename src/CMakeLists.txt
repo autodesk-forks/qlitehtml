@@ -1,6 +1,8 @@
 # set the following variables before adding as subdirectory into a project
 # QLITEHTML_BIN_PATH - relative install path for result DLLs
 # QLITEHTML_LIBRARY_PATH - relative install path for result dynamic libraries
+# QLITEHTML_LIBRARY_ARCHIVE_PATH - relative install path for result archives (.lib, static lib),
+#                                  defaults to QLITEHTML_LIBRARY_PATH
 # QLITEHTML_EXPORT - export name for qlitehtml
 # QLITEHTML_DEVEL_COMPONENT - component name for development installation
 # QLITEHTML_DEVEL_EXCLUDE_FROM_ALL - if development component should not be installed by default
@@ -42,6 +44,10 @@ if(TARGET litehtml)
   if(NOT QLITEHTML_LIBRARY_TYPE)
     set(QLITEHTML_LIBRARY_TYPE SHARED)
   endif()
+  if(NOT QLITEHTML_LIBRARY_ARCHIVE_PATH)
+    set(QLITEHTML_LIBRARY_ARCHIVE_PATH "${QLITEHTML_LIBRARY_PATH}")
+  endif()
+
   add_library(qlitehtml ${QLITEHTML_LIBRARY_TYPE} ${PUBLIC_HEADERS} container_qpainter.cpp qlitehtmlwidget.cpp)
 
   target_include_directories(qlitehtml PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
@@ -125,7 +131,7 @@ if(TARGET litehtml)
         ${_DEVEL_COMPONENT}
         OPTIONAL
       ARCHIVE
-        DESTINATION "${QLITEHTML_LIBRARY_PATH}"
+        DESTINATION "${QLITEHTML_LIBRARY_ARCHIVE_PATH_PATH}"
         ${_DEVEL_COMPONENT}
         OPTIONAL)
   endif()
