@@ -57,9 +57,9 @@ Product {
             cpp.libraryPaths: FileInfo.joinPaths(qtc.litehtmlInstallDir, "lib")
         }
         Properties {
-            condition: product.buildLib
-            cpp.defines: product.sharedDefines
-            cpp.includePaths: [product.mainHeaderDir, path]
+            condition: exportingProduct.buildLib
+            cpp.defines: exportingProduct.sharedDefines
+            cpp.includePaths: [exportingProduct.mainHeaderDir, path]
         }
     }
 
