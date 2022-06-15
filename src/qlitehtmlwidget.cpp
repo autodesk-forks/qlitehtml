@@ -603,6 +603,7 @@ void QLiteHtmlWidget::keyPressEvent(QKeyEvent *event)
         if (sliderAction != QAbstractSlider::SliderNoAction) {
             verticalScrollBar()->triggerAction(sliderAction);
             event->accept();
+            return;
         }
     }
 
