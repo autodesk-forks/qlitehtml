@@ -1,3 +1,6 @@
+# Copyright (C) 2022 The Qt Company Ltd.
+# SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
+
 # set the following variables before adding as subdirectory into a project
 # QLITEHTML_BIN_PATH - relative install path for result DLLs
 # QLITEHTML_LIBRARY_PATH - relative install path for result dynamic libraries
