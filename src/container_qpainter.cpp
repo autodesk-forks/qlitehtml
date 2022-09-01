@@ -1358,7 +1358,7 @@ QUrl DocumentContainerPrivate::resolveUrl(const QString &url, const QString &bas
     // server relative path: "/foo/bar.css"
     // net path: "//foo.bar/blah.css"
     // fragment only: "#foo-fragment"
-    const QUrl qurl(url);
+    const QUrl qurl = QUrl::fromEncoded(url.toUtf8());
     if (qurl.scheme().isEmpty()) {
         if (url.startsWith('#')) // leave alone if just a fragment
             return qurl;
@@ -1371,7 +1371,7 @@ QUrl DocumentContainerPrivate::resolveUrl(const QString &url, const QString &bas
                                           ? serverUrl.toString(QUrl::FullyEncoded)
                                           : pageBaseUrl.toString(QUrl::FullyEncoded);
         QUrl resolvedUrl(actualBaseUrl + '/' + url);
-        resolvedUrl.setPath(QDir::cleanPath(resolvedUrl.path(QUrl::FullyEncoded)));
+        resolvedUrl.setPath(resolvedUrl.path(QUrl::FullyEncoded | QUrl::NormalizePathSegments), QUrl::TolerantMode);
         return resolvedUrl;
     }
     return qurl;
