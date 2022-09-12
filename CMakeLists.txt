@@ -26,7 +26,7 @@ else()
     set(QLITEHTML_HEADER_PATH include/qlitehtml)
 endif()
 
-find_package(QT 5.11 NAMES Qt6 Qt5 COMPONENTS Widgets REQUIRED)
+find_package(QT 5.15 NAMES Qt6 Qt5 COMPONENTS Widgets REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets REQUIRED)
 set(Qt Qt${QT_VERSION_MAJOR})
 
