@@ -24,6 +24,7 @@ if(NOT TARGET litehtml AND EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/litehtml/
     endif()
     set(CMAKE_POSITION_INDEPENDENT_CODE ON)
     set(BUILD_SHARED_LIBS OFF)
+    set(LITEHTML_BUILD_TESTING OFF)
 
     add_subdirectory(3rdparty/litehtml EXCLUDE_FROM_ALL)
 
