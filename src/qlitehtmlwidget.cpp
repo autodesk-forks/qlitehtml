@@ -479,6 +479,15 @@ QFont QLiteHtmlWidget::defaultFont() const
     return d->documentContainer.defaultFont();
 }
 
+void QLiteHtmlWidget::setAntialias(bool on)
+{
+    withFixedTextPosition([this, on] {
+        d->documentContainer.setAntialias(on);
+        // force litehtml to recreate fonts
+        setHtml(d->html);
+    });
+}
+
 void QLiteHtmlWidget::scrollToAnchor(const QString &name)
 {
     if (!d->documentContainer.hasDocument())

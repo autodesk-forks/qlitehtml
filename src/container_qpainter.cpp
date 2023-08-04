@@ -462,6 +462,7 @@ litehtml::uint_ptr DocumentContainerPrivate::create_font(const litehtml::tchar_t
     font->setPixelSize(size);
     font->setWeight(cssWeightToQtWeight(weight));
     font->setStyle(toQFontStyle(italic));
+    font->setStyleStrategy(m_antialias ? QFont::PreferAntialias : QFont::NoAntialias);
     if (decoration == litehtml::font_decoration_underline)
         font->setUnderline(true);
     if (decoration == litehtml::font_decoration_overline)
@@ -1233,6 +1234,16 @@ void DocumentContainer::setDefaultFont(const QFont &font)
 QFont DocumentContainer::defaultFont() const
 {
     return d->m_defaultFont;
+}
+
+void DocumentContainer::setAntialias(bool on)
+{
+    d->m_antialias = on;
+}
+
+bool DocumentContainer::antialias() const
+{
+    return d->m_antialias;
 }
 
 void DocumentContainer::setDataCallback(const DocumentContainer::DataCallback &callback)

@@ -127,6 +127,7 @@ public: // document_container API
     QString m_caption;
     QFont m_defaultFont = QFont(sansSerifFont(), 16);
     QByteArray m_defaultFontFamilyName = m_defaultFont.family().toUtf8();
+    bool m_antialias = true;
     QHash<QUrl, QPixmap> m_pixmaps;
     Selection m_selection;
     DocumentContainer::DataCallback m_dataCallback;
