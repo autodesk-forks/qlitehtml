@@ -41,6 +41,11 @@ if(NOT TARGET litehtml AND EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/litehtml/
         QT_COMPILE_OPTIONS_DISABLE_WARNINGS ON
     )
 
+    # suppress compiler warnings from litehtml headers by making them "system"
+    # include directories
+    get_target_property(litehtml_includedirs litehtml INTERFACE_INCLUDE_DIRECTORIES)
+    target_include_directories(litehtml SYSTEM INTERFACE ${litehtml_includedirs})
+
     set(CMAKE_POSITION_INDEPENDENT_CODE "${ORIG_FPIC}")
     set(BUILD_SHARED_LIBS ${ORIG_BUILD_SHARED_LIBS})
     # force optimized litehtml even in debug
