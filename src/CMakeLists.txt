@@ -15,7 +15,10 @@ set(QLITEHTML_VERSION ${PROJECT_VERSION})
 set(QLITEHTML_VERSION_MAJOR ${PROJECT_VERSION_MAJOR})
 set(QLITEHTML_VERSION_COMPAT ${QLITEHTML_VERSION} CACHE STRING "qlitehtml compat version number.")
 
-find_package(litehtml QUIET)
+option(QLITEHTML_USE_SYSTEM_LITEHTML "Uses litehtml from the system if available" ON)
+if(QLITEHTML_USE_SYSTEM_LITEHTML)
+  find_package(litehtml QUIET)
+endif()
 if(NOT TARGET litehtml AND EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/litehtml/CMakeLists.txt)
     set(CMAKE_POLICY_DEFAULT_CMP0077 NEW) # make it possible to override LITEHTML_BUILD_TESTING
     set(ORIG_FPIC ${CMAKE_POSITION_INDEPENDENT_CODE})
